@@ -8,10 +8,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Scanner;
-import java.util.stream.LongStream;
+
 
 public class Main {
     private static Board gameBoard;
+    private static final int LOWER_BOUND_OF_BOARD_SIZE = 4;
+    private static final int UPPER_BOUND_OF_BOARD_SIZE = 1000;
+    private static final int LOWER_BOUND_OF_NUMBER_OF_INSECTS = 1;
+    private static final int UPPER_BOUND_OF_NUMBER_OF_INSECTS = 16;
+    private static final int LOWER_BOUND_OF_NUMBER_OF_FOOD_POINTS = 1;
+    private static final int UPPER_BOUND_OF_NUMBER_OF_FOOD_POINTS = 200;
 
     public static void main(String[] args) {
         try {
@@ -23,8 +29,7 @@ public class Main {
 
             // board size
             int boardSize = Integer.parseInt(sc.next());
-            LongStream rangeBoardSize = LongStream.range(4, 1000);
-            if (boardSize < 4 || boardSize > 1000) {
+            if (boardSize < LOWER_BOUND_OF_BOARD_SIZE || boardSize > UPPER_BOUND_OF_BOARD_SIZE) {
                 InvalidBoardSizeException error = new InvalidBoardSizeException();
                 System.out.println(error.getMessage());
                 System.exit(0);
@@ -33,16 +38,19 @@ public class Main {
             gameBoard = new Board(boardSize);
 
             // number of insects
-            int N = Integer.parseInt(sc.next());
-            if (N < 1 || N > 16) {
+            int numberOfInsects = Integer.parseInt(sc.next());
+
+            if (numberOfInsects < LOWER_BOUND_OF_NUMBER_OF_INSECTS
+                    || numberOfInsects > UPPER_BOUND_OF_NUMBER_OF_INSECTS) {
                 InvalidNumberOfInsectsException error = new InvalidNumberOfInsectsException();
                 System.out.println(error.getMessage());
                 System.exit(0);
             }
 
             // number of foods
-            int M = Integer.parseInt(sc.next());
-            if (M < 1 || M > 200) {
+            int numberOfFoodPoints = Integer.parseInt(sc.next());
+            if (numberOfFoodPoints < LOWER_BOUND_OF_NUMBER_OF_FOOD_POINTS
+                    || numberOfFoodPoints > UPPER_BOUND_OF_NUMBER_OF_FOOD_POINTS) {
                 InvalidNumberOFoodPointsException error = new InvalidNumberOFoodPointsException();
                 System.out.println(error.getMessage());
                 System.exit(0);
@@ -50,7 +58,7 @@ public class Main {
 
             List<Insect> listOfInsects = new ArrayList<>();
 
-            for (int i = 0; i < N; i++) {
+            for (int i = 0; i < numberOfInsects; i++) {
                 InsectColor color = InsectColor.toColor(sc.next());
                 if (color == null) {
                     InvalidInsectColorException error = new InvalidInsectColorException();
@@ -58,25 +66,9 @@ public class Main {
                     System.exit(0);
                 }
 
-                // TODO: как сделать чтобы сначала ошибка выводилась на неприавльно название а потом на местоположение
                 String insectTypeString = sc.next();
 
-
-                int x = Integer.parseInt(sc.next());
-                if (x < 1 || x > boardSize) {
-                    InvalidEntityPositionException error = new InvalidEntityPositionException();
-                    System.out.println(error.getMessage());
-                    System.exit(0);
-                }
-
-                int y = Integer.parseInt(sc.next());
-                if (y < 1 || y > boardSize) {
-                    InvalidEntityPositionException error = new InvalidEntityPositionException();
-                    System.out.println(error.getMessage());
-                    System.exit(0);
-                }
-
-                EntityPosition entityPosition = new EntityPosition(x, y);
+                EntityPosition entityPosition = createEntityPosition(sc);
 
                 Insect insectType = null;
                 switch (insectTypeString) {
@@ -114,24 +106,11 @@ public class Main {
 
             }
 
-            for (int i = 0; i < M; i++) {
+            for (int i = 0; i < numberOfFoodPoints; i++) {
 
                 int foodAmount = Integer.parseInt(sc.next());
 
-                int x = Integer.parseInt(sc.next());
-                if (x < 1 || x > boardSize) {
-                    InvalidEntityPositionException error = new InvalidEntityPositionException();
-                    System.out.println(error.getMessage());
-                    System.exit(0);
-                }
-
-                int y = Integer.parseInt(sc.next());
-                if (y < 1 || y > boardSize) {
-                    InvalidEntityPositionException error = new InvalidEntityPositionException();
-                    System.out.println(error.getMessage());
-                    System.exit(0);
-                }
-                EntityPosition entityPosition = new EntityPosition(x, y);
+                EntityPosition entityPosition = createEntityPosition(sc);
                 if (gameBoard.getEntity(entityPosition) != null) {
                     TwoEntitiesOnSamePositionException error = new TwoEntitiesOnSamePositionException();
                     System.out.println(error.getMessage());
@@ -147,15 +126,15 @@ public class Main {
     }
 
     public static void printData(List<Insect> insectList) {
-        for (Insect insect: insectList) {
+        for (Insect insect : insectList) {
             if (insect instanceof Spider) {
-             Spider spider = (Spider) insect;
-             System.out.print(spider.color.toString() + " ");
-             System.out.print("Spider" + " ");
-             Direction bestDirection = spider.getBestDirection(gameBoard.getBoardData(), gameBoard.getSize());
-             System.out.print(bestDirection.toString() + " ");
-             System.out.print(spider.travelDiagonally(bestDirection, spider.entityPosition, spider.color,
-                     gameBoard.getBoardData(), gameBoard.getSize()));
+                Spider spider = (Spider) insect;
+                System.out.print(spider.color.toString() + " ");
+                System.out.print("Spider" + " ");
+                Direction bestDirection = spider.getBestDirection(gameBoard.getBoardData(), gameBoard.getSize());
+                System.out.print(bestDirection.toString() + " ");
+                System.out.print(spider.travelDiagonally(bestDirection, spider.entityPosition, spider.color,
+                        gameBoard.getBoardData(), gameBoard.getSize()));
             } else if (insect instanceof Butterfly) {
                 Butterfly butterfly = (Butterfly) insect;
                 System.out.print(butterfly.color.toString() + " ");
@@ -170,8 +149,8 @@ public class Main {
                 System.out.print("Ant" + " ");
                 Direction bestDirection = ant.getBestDirection(gameBoard.getBoardData(), gameBoard.getSize());
                 System.out.print(bestDirection.toString() + " ");
-                if (bestDirection.equals(Direction.N) || bestDirection.equals(Direction.E) ||
-                        bestDirection.equals(Direction.S) || bestDirection.equals(Direction.W)) {
+                if (bestDirection.equals(Direction.N) || bestDirection.equals(Direction.E)
+                        || bestDirection.equals(Direction.S) || bestDirection.equals(Direction.W)) {
                     System.out.print(ant.travelOrthogonally(bestDirection, ant.entityPosition, ant.color,
                             gameBoard.getBoardData(), gameBoard.getSize()));
                 } else {
@@ -184,17 +163,34 @@ public class Main {
                 System.out.print("Grasshopper" + " ");
                 Direction bestDirection = grasshopper.getBestDirection(gameBoard.getBoardData(), gameBoard.getSize());
                 System.out.print(bestDirection.toString() + " ");
-                System.out.print(grasshopper.travelOrthogonally(bestDirection, grasshopper.entityPosition, grasshopper.color,
-                        gameBoard.getBoardData(), gameBoard.getSize()));
+                System.out.print(grasshopper.travelOrthogonally(bestDirection, grasshopper.entityPosition,
+                        grasshopper.color, gameBoard.getBoardData(), gameBoard.getSize()));
             }
             System.out.println();
         }
-     }
+    }
+
+    private static EntityPosition createEntityPosition(Scanner sc) {
+        int x = Integer.parseInt(sc.next());
+        if (x < 1 || x > gameBoard.getSize()) {
+            InvalidEntityPositionException error = new InvalidEntityPositionException();
+            System.out.println(error.getMessage());
+            System.exit(0);
+        }
+
+        int y = Integer.parseInt(sc.next());
+        if (y < 1 || y > gameBoard.getSize()) {
+            InvalidEntityPositionException error = new InvalidEntityPositionException();
+            System.out.println(error.getMessage());
+            System.exit(0);
+        }
+        return new EntityPosition(x, y);
+    }
 }
 
 class Board {
     private static Map<String, BoardEntity> boardData = new HashMap<>();
-    private int size;
+    private final int size;
 
     public int getSize() {
         return size;
@@ -212,7 +208,6 @@ class Board {
         this.size = boardSize;
     }
 
-    // TODO: добавить сущность
     public void addEntity(BoardEntity entity) {
         boardData.put(toString(entity.entityPosition), entity);
     }
@@ -221,21 +216,10 @@ class Board {
         return entityPosition.getX() + " " + entityPosition.getY();
     }
 
-    // TODO: получить сущность по позиции
     public BoardEntity getEntity(EntityPosition position) {
-        BoardEntity entity = boardData.get(toString(position));
-        return entity;
+        return boardData.get(toString(position));
     }
 
-    // TODO: получить направление в зависимости от типа сущности
-    public Direction getDirection(Insect insect) {
-        return null;
-    }
-
-    // TODO: ?? возможно посчитать сумму еды на пути
-    public int getDirectionSum(Insect insect) {
-        return 0;
-    }
 }
 
 abstract class BoardEntity {
@@ -243,8 +227,8 @@ abstract class BoardEntity {
 }
 
 class EntityPosition {
-    private int x;
-    private int y;
+    private final int x;
+    private final int y;
 
     public EntityPosition(int x, int y) {
         this.x = x;
@@ -255,22 +239,18 @@ class EntityPosition {
         return x;
     }
 
-    public void setX(int x) {
-        this.x = x;
-    }
-
     public int getY() {
         return y;
     }
 
-    public void setY(int y) {
-        this.y = y;
-    }
-
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         EntityPosition that = (EntityPosition) o;
         return x == that.x && y == that.y;
     }
@@ -310,7 +290,7 @@ enum InsectColor {
     YELLOW;
 
     public static InsectColor toColor(String s) {
-        InsectColor color = null;
+        InsectColor color;
         switch (s) {
             case "Red":
                 color = RED;
@@ -325,9 +305,8 @@ enum InsectColor {
                 color = YELLOW;
                 break;
             default:
+                color = null;
                 break;
-
-            // TODO: throw error
         }
         return color;
     }
@@ -356,7 +335,6 @@ abstract class Insect extends BoardEntity {
         this.entityPosition = position;
     }
 
-    // TODO: получить лучшее направление
     public Direction getBestDirection(Map<String, BoardEntity> boardData, int boardSize) {
         Direction bestDirection = null;
         return bestDirection;
@@ -366,11 +344,6 @@ abstract class Insect extends BoardEntity {
         return color;
     }
 
-    public void setColor(InsectColor color) {
-        this.color = color;
-    }
-
-    // TODO: сколько
     public int travelDirection(Direction dir, Map<String, BoardEntity> boardData, int boardSize) {
         int travel = 0;
         return travel;
@@ -378,8 +351,12 @@ abstract class Insect extends BoardEntity {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         Insect insect = (Insect) o;
         return color == insect.color;
     }
@@ -398,29 +375,7 @@ class Butterfly extends Insect implements OrthogonalMoving {
 
     @Override
     public Direction getBestDirection(Map<String, BoardEntity> boardData, int boardSize) {
-        int north = getOrthogonalDirectionVisibleValue(Direction.N, entityPosition, boardData, boardSize);
-        int east = getOrthogonalDirectionVisibleValue(Direction.E, entityPosition, boardData, boardSize);
-        int south = getOrthogonalDirectionVisibleValue(Direction.S, entityPosition, boardData, boardSize);
-        int west = getOrthogonalDirectionVisibleValue(Direction.W, entityPosition, boardData, boardSize);
-        int maxAmountOfFood = -1;
-        Direction bestDirection = null;
-        if (north > maxAmountOfFood) {
-            maxAmountOfFood = north;
-            bestDirection = Direction.N;
-        }
-        if (east > maxAmountOfFood) {
-            maxAmountOfFood = east;
-            bestDirection = Direction.E;
-        }
-        if (south > maxAmountOfFood) {
-            maxAmountOfFood = south;
-            bestDirection = Direction.S;
-        }
-        if (west > maxAmountOfFood) {
-            maxAmountOfFood = west;
-            bestDirection = Direction.W;
-        }
-        return bestDirection;
+        return Travel.getBestOrthogonalDirection(entityPosition, boardData, boardSize);
     }
 
     @Override
@@ -429,119 +384,15 @@ class Butterfly extends Insect implements OrthogonalMoving {
     }
 
     @Override
-    public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition, Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case N:
-                while (x > 1) {
-                    x -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-
-                    }
-                }
-                break;
-            case S:
-                while (x < boardSize) {
-                    x += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case E:
-                while (y < boardSize) {
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case W:
-                while (y > 1) {
-                    y -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-        }
-        return amountOfFood;
+    public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
+                                                  Map<String, BoardEntity> boardData, int boardSize) {
+        return Travel.getOrthogonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize);
     }
 
     @Override
     public int travelOrthogonally(Direction dir, EntityPosition entityPosition, InsectColor color,
                                   Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case N:
-                while (x > 1) {
-                    x -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case S:
-                while (x < boardSize) {
-                    x += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case E:
-                while (y < boardSize) {
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case W:
-                while (y > 1) {
-                    y -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-        }
-        boardData.remove(Board.toString(entityPosition));
-        Board.setBoardData(boardData);
-        return amountOfFood;
+        return Travel.travelOrthogonally(dir, entityPosition, color, boardData, boardSize);
     }
 }
 
@@ -605,241 +456,27 @@ class Ant extends Insect implements OrthogonalMoving, DiagonalMoving {
     }
 
     @Override
-    public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition, Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case N:
-                while (x > 1) {
-                    x -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-
-                    }
-                }
-                break;
-            case S:
-                while (x < boardSize) {
-                    x += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case E:
-                while (y < boardSize) {
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case W:
-                while (y > 1) {
-                    y -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-        }
-        return amountOfFood;
+    public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
+                                                  Map<String, BoardEntity> boardData, int boardSize) {
+        return Travel.getOrthogonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize);
     }
 
     @Override
     public int travelOrthogonally(Direction dir, EntityPosition entityPosition, InsectColor color,
                                   Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case N:
-                while (x > 1) {
-                    x -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case S:
-                while (x < boardSize) {
-                    x += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case E:
-                while (y < boardSize) {
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case W:
-                while (y > 1) {
-                    y -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-        }
-        boardData.remove(Board.toString(entityPosition));
-        Board.setBoardData(boardData);
-        return amountOfFood;
+        return Travel.travelOrthogonally(dir, entityPosition, color, boardData, boardSize);
     }
 
     @Override
-    public int getDiagonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition, Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case NE:
-                while (x > 1 && y < boardSize) {
-                    x -= 1;
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case SE:
-                while (x < boardSize && y < boardSize) {
-                    x += 1;
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case SW:
-                while (y > 1 && x < boardSize) {
-                    y -= 1;
-                    x += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case NW:
-                while (y > 1 && x > 1) {
-                    y -= 1;
-                    x -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-        }
-        return amountOfFood;
+    public int getDiagonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
+                                                Map<String, BoardEntity> boardData, int boardSize) {
+        return Travel.getDiagonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize);
     }
 
     @Override
-    public int travelDiagonally(Direction dir, EntityPosition entityPosition, InsectColor color, Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case NE:
-                while (x > 1 && y < boardSize) {
-                    x -= 1;
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case SE:
-                while (x < boardSize && y < boardSize) {
-                    x += 1;
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case SW:
-                while (y > 1 && x < boardSize) {
-                    y -= 1;
-                    x += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case NW:
-                while (y > 1 && x > 1) {
-                    y -= 1;
-                    x -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-        }
-        boardData.remove(Board.toString(entityPosition));
-        Board.setBoardData(boardData);
-        return amountOfFood;
+    public int travelDiagonally(Direction dir, EntityPosition entityPosition, InsectColor color,
+                                Map<String, BoardEntity> boardData, int boardSize) {
+        return Travel.travelDiagonally(dir, entityPosition, color, boardData, boardSize);
     }
 
 
@@ -852,29 +489,7 @@ class Spider extends Insect implements DiagonalMoving {
 
     @Override
     public Direction getBestDirection(Map<String, BoardEntity> boardData, int boardSize) {
-        int northEast = getDiagonalDirectionVisibleValue(Direction.NE, entityPosition, boardData, boardSize);
-        int southEast = getDiagonalDirectionVisibleValue(Direction.SE, entityPosition, boardData, boardSize);
-        int southWest = getDiagonalDirectionVisibleValue(Direction.SW, entityPosition, boardData, boardSize);
-        int northWest = getDiagonalDirectionVisibleValue(Direction.NW, entityPosition, boardData, boardSize);
-        int maxAmountOfFood = -1;
-        Direction bestDirection = null;
-        if (northEast > maxAmountOfFood) {
-            maxAmountOfFood = northEast;
-            bestDirection = Direction.NE;
-        }
-        if (southEast > maxAmountOfFood) {
-            maxAmountOfFood = southEast;
-            bestDirection = Direction.SE;
-        }
-        if (southWest > maxAmountOfFood) {
-            maxAmountOfFood = southWest;
-            bestDirection = Direction.SW;
-        }
-        if (northWest > maxAmountOfFood) {
-            maxAmountOfFood = northWest;
-            bestDirection = Direction.NW;
-        }
-        return bestDirection;
+        return Travel.getBestDiagonalDirection(entityPosition, boardData, boardSize);
     }
 
     @Override
@@ -883,130 +498,20 @@ class Spider extends Insect implements DiagonalMoving {
     }
 
     @Override
-    public int getDiagonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition, Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case NE:
-                while (x > 1 && y < boardSize) {
-                    x -= 1;
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case SE:
-                while (x < boardSize && y < boardSize) {
-                    x += 1;
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case SW:
-                while (y > 1 && x < boardSize) {
-                    y -= 1;
-                    x += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case NW:
-                while (y > 1 && x > 1) {
-                    y -= 1;
-                    x -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-        }
-        return amountOfFood;
+    public int getDiagonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
+                                                Map<String, BoardEntity> boardData, int boardSize) {
+        return Travel.getDiagonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize);
     }
 
     @Override
-    public int travelDiagonally(Direction dir, EntityPosition entityPosition, InsectColor color, Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case NE:
-                while (x > 1 && y < boardSize) {
-                    x -= 1;
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case SE:
-                while (x < boardSize && y < boardSize) {
-                    x += 1;
-                    y += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case SW:
-                while (y > 1 && x < boardSize) {
-                    y -= 1;
-                    x += 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case NW:
-                while (y > 1 && x > 1) {
-                    y -= 1;
-                    x -= 1;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-        }
-        boardData.remove(Board.toString(entityPosition));
-        Board.setBoardData(boardData);
-        return amountOfFood;
+    public int travelDiagonally(Direction dir, EntityPosition entityPosition, InsectColor color,
+                                Map<String, BoardEntity> boardData, int boardSize) {
+        return Travel.travelDiagonally(dir, entityPosition, color,
+                boardData, boardSize);
     }
-
 }
 
-class Grasshopper extends Insect implements OrthogonalMoving{
+class Grasshopper extends Insect implements OrthogonalMoving {
     public Grasshopper(EntityPosition position, InsectColor color) {
         super(position, color);
     }
@@ -1044,7 +549,8 @@ class Grasshopper extends Insect implements OrthogonalMoving{
     }
 
     @Override
-    public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition, Map<String, BoardEntity> boardData, int boardSize) {
+    public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
+                                                  Map<String, BoardEntity> boardData, int boardSize) {
         int amountOfFood = 0;
         int x = entityPosition.getX();
         int y = entityPosition.getY();
@@ -1085,6 +591,8 @@ class Grasshopper extends Insect implements OrthogonalMoving{
                         amountOfFood += ((FoodPoint) entity).value;
                     }
                 }
+                break;
+            default:
                 break;
         }
         return amountOfFood;
@@ -1153,12 +661,314 @@ class Grasshopper extends Insect implements OrthogonalMoving{
                     }
                 }
                 break;
+            default:
+                break;
         }
         boardData.remove(Board.toString(entityPosition));
         Board.setBoardData(boardData);
         return amountOfFood;
     }
 
+}
+
+class Travel {
+    public static int travelDiagonally(Direction dir, EntityPosition entityPosition,
+                                       InsectColor color, Map<String, BoardEntity> boardData, int boardSize) {
+        int amountOfFood = 0;
+        int x = entityPosition.getX();
+        int y = entityPosition.getY();
+        switch (dir) {
+            case NE:
+                while (x > 1 && y < boardSize) {
+                    x -= 1;
+                    y += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                        boardData.remove(x + " " + y);
+                    } else if (entity instanceof Insect) {
+                        if (((Insect) entity).getColor() != color) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            case SE:
+                while (x < boardSize && y < boardSize) {
+                    x += 1;
+                    y += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                        boardData.remove(x + " " + y);
+                    } else if (entity instanceof Insect) {
+                        if (((Insect) entity).getColor() != color) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            case SW:
+                while (y > 1 && x < boardSize) {
+                    y -= 1;
+                    x += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                        boardData.remove(x + " " + y);
+                    } else if (entity instanceof Insect) {
+                        if (((Insect) entity).getColor() != color) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            case NW:
+                while (y > 1 && x > 1) {
+                    y -= 1;
+                    x -= 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                        boardData.remove(x + " " + y);
+                    } else if (entity instanceof Insect) {
+                        if (((Insect) entity).getColor() != color) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        boardData.remove(Board.toString(entityPosition));
+        Board.setBoardData(boardData);
+        return amountOfFood;
+    }
+
+    public static int getDiagonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
+                                                       Map<String, BoardEntity> boardData, int boardSize) {
+        int amountOfFood = 0;
+        int x = entityPosition.getX();
+        int y = entityPosition.getY();
+        switch (dir) {
+            case NE:
+                while (x > 1 && y < boardSize) {
+                    x -= 1;
+                    y += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                    }
+                }
+                break;
+            case SE:
+                while (x < boardSize && y < boardSize) {
+                    x += 1;
+                    y += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                    }
+                }
+                break;
+            case SW:
+                while (y > 1 && x < boardSize) {
+                    y -= 1;
+                    x += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                    }
+                }
+                break;
+            case NW:
+                while (y > 1 && x > 1) {
+                    y -= 1;
+                    x -= 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        return amountOfFood;
+    }
+
+    public static int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
+                                                         Map<String, BoardEntity> boardData, int boardSize) {
+        int amountOfFood = 0;
+        int x = entityPosition.getX();
+        int y = entityPosition.getY();
+        switch (dir) {
+            case N:
+                while (x > 1) {
+                    x -= 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+
+                    }
+                }
+                break;
+            case S:
+                while (x < boardSize) {
+                    x += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                    }
+                }
+                break;
+            case E:
+                while (y < boardSize) {
+                    y += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                    }
+                }
+                break;
+            case W:
+                while (y > 1) {
+                    y -= 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        return amountOfFood;
+    }
+
+    public static int travelOrthogonally(Direction dir, EntityPosition entityPosition, InsectColor color,
+                                         Map<String, BoardEntity> boardData, int boardSize) {
+        int amountOfFood = 0;
+        int x = entityPosition.getX();
+        int y = entityPosition.getY();
+        switch (dir) {
+            case N:
+                while (x > 1) {
+                    x -= 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                        boardData.remove(x + " " + y);
+                    } else if (entity instanceof Insect) {
+                        if (((Insect) entity).getColor() != color) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            case S:
+                while (x < boardSize) {
+                    x += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                        boardData.remove(x + " " + y);
+                    } else if (entity instanceof Insect) {
+                        if (((Insect) entity).getColor() != color) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            case E:
+                while (y < boardSize) {
+                    y += 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                        boardData.remove(x + " " + y);
+                    } else if (entity instanceof Insect) {
+                        if (((Insect) entity).getColor() != color) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            case W:
+                while (y > 1) {
+                    y -= 1;
+                    BoardEntity entity = boardData.get(x + " " + y);
+                    if (entity instanceof FoodPoint) {
+                        amountOfFood += ((FoodPoint) entity).value;
+                        boardData.remove(x + " " + y);
+                    } else if (entity instanceof Insect) {
+                        if (((Insect) entity).getColor() != color) {
+                            break;
+                        }
+                    }
+                }
+                break;
+            default:
+                break;
+        }
+        boardData.remove(Board.toString(entityPosition));
+        Board.setBoardData(boardData);
+        return amountOfFood;
+    }
+
+    public static Direction getBestOrthogonalDirection(EntityPosition entityPosition,
+                                                Map<String, BoardEntity> boardData, int boardSize) {
+        int north = getOrthogonalDirectionVisibleValue(Direction.N, entityPosition, boardData, boardSize);
+        int east = getOrthogonalDirectionVisibleValue(Direction.E, entityPosition, boardData, boardSize);
+        int south = getOrthogonalDirectionVisibleValue(Direction.S, entityPosition, boardData, boardSize);
+        int west = getOrthogonalDirectionVisibleValue(Direction.W, entityPosition, boardData, boardSize);
+        int maxAmountOfFood = -1;
+        Direction bestDirection = null;
+        if (north > maxAmountOfFood) {
+            maxAmountOfFood = north;
+            bestDirection = Direction.N;
+        }
+        if (east > maxAmountOfFood) {
+            maxAmountOfFood = east;
+            bestDirection = Direction.E;
+        }
+        if (south > maxAmountOfFood) {
+            maxAmountOfFood = south;
+            bestDirection = Direction.S;
+        }
+        if (west > maxAmountOfFood) {
+            maxAmountOfFood = west;
+            bestDirection = Direction.W;
+        }
+        return bestDirection;
+    }
+    public static Direction getBestDiagonalDirection(EntityPosition entityPosition,
+                                      Map<String, BoardEntity> boardData, int boardSize) {
+        int northEast = getDiagonalDirectionVisibleValue(Direction.NE, entityPosition, boardData, boardSize);
+        int southEast = getDiagonalDirectionVisibleValue(Direction.SE, entityPosition, boardData, boardSize);
+        int southWest = getDiagonalDirectionVisibleValue(Direction.SW, entityPosition, boardData, boardSize);
+        int northWest = getDiagonalDirectionVisibleValue(Direction.NW, entityPosition, boardData, boardSize);
+        int maxAmountOfFood = -1;
+        Direction bestDirection = null;
+        if (northEast > maxAmountOfFood) {
+            maxAmountOfFood = northEast;
+            bestDirection = Direction.NE;
+        }
+        if (southEast > maxAmountOfFood) {
+            maxAmountOfFood = southEast;
+            bestDirection = Direction.SE;
+        }
+        if (southWest > maxAmountOfFood) {
+            maxAmountOfFood = southWest;
+            bestDirection = Direction.SW;
+        }
+        if (northWest > maxAmountOfFood) {
+            maxAmountOfFood = northWest;
+            bestDirection = Direction.NW;
+        }
+        return bestDirection;
+    }
 }
 
 
