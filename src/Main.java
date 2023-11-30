@@ -281,6 +281,7 @@ enum Direction {
     public String toString() {
         return this.textRepresentation;
     }
+
 }
 
 enum InsectColor {
@@ -336,8 +337,7 @@ abstract class Insect extends BoardEntity {
     }
 
     public Direction getBestDirection(Map<String, BoardEntity> boardData, int boardSize) {
-        Direction bestDirection = null;
-        return bestDirection;
+        return null;
     }
 
     public InsectColor getColor() {
@@ -345,8 +345,7 @@ abstract class Insect extends BoardEntity {
     }
 
     public int travelDirection(Direction dir, Map<String, BoardEntity> boardData, int boardSize) {
-        int travel = 0;
-        return travel;
+        return 0;
     }
 
     @Override
@@ -375,7 +374,7 @@ class Butterfly extends Insect implements OrthogonalMoving {
 
     @Override
     public Direction getBestDirection(Map<String, BoardEntity> boardData, int boardSize) {
-        return Travel.getBestOrthogonalDirection(entityPosition, boardData, boardSize);
+        return Travel.getBestOrthogonalDirection(entityPosition, boardData, boardSize, 1);
     }
 
     @Override
@@ -386,13 +385,13 @@ class Butterfly extends Insect implements OrthogonalMoving {
     @Override
     public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
                                                   Map<String, BoardEntity> boardData, int boardSize) {
-        return Travel.getOrthogonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize);
+        return Travel.getOrthogonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize, 1);
     }
 
     @Override
     public int travelOrthogonally(Direction dir, EntityPosition entityPosition, InsectColor color,
                                   Map<String, BoardEntity> boardData, int boardSize) {
-        return Travel.travelOrthogonally(dir, entityPosition, color, boardData, boardSize);
+        return Travel.travelOrthogonally(dir, entityPosition, color, boardData, boardSize, 1);
     }
 }
 
@@ -404,50 +403,68 @@ class Ant extends Insect implements OrthogonalMoving, DiagonalMoving {
 
     @Override
     public Direction getBestDirection(Map<String, BoardEntity> boardData, int boardSize) {
-        int north = getOrthogonalDirectionVisibleValue(Direction.N, entityPosition, boardData, boardSize);
-        int east = getOrthogonalDirectionVisibleValue(Direction.E, entityPosition, boardData, boardSize);
-        int south = getOrthogonalDirectionVisibleValue(Direction.S, entityPosition, boardData, boardSize);
-        int west = getOrthogonalDirectionVisibleValue(Direction.W, entityPosition, boardData, boardSize);
-        int northEast = getDiagonalDirectionVisibleValue(Direction.NE, entityPosition, boardData, boardSize);
-        int southEast = getDiagonalDirectionVisibleValue(Direction.SE, entityPosition, boardData, boardSize);
-        int southWest = getDiagonalDirectionVisibleValue(Direction.SW, entityPosition, boardData, boardSize);
-        int northWest = getDiagonalDirectionVisibleValue(Direction.NW, entityPosition, boardData, boardSize);
-        int maxAmountOfFood = -1;
-        Direction bestDirection = null;
 
-        if (north > maxAmountOfFood) {
-            maxAmountOfFood = north;
-            bestDirection = Direction.N;
-        }
-        if (east > maxAmountOfFood) {
-            maxAmountOfFood = east;
-            bestDirection = Direction.E;
-        }
-        if (south > maxAmountOfFood) {
-            maxAmountOfFood = south;
-            bestDirection = Direction.S;
-        }
-        if (west > maxAmountOfFood) {
-            maxAmountOfFood = west;
-            bestDirection = Direction.W;
-        }
-        if (northEast > maxAmountOfFood) {
-            maxAmountOfFood = northEast;
-            bestDirection = Direction.NE;
-        }
-        if (southEast > maxAmountOfFood) {
-            maxAmountOfFood = southEast;
-            bestDirection = Direction.SE;
-        }
-        if (southWest > maxAmountOfFood) {
-            maxAmountOfFood = southWest;
-            bestDirection = Direction.SW;
-        }
-        if (northWest > maxAmountOfFood) {
-            maxAmountOfFood = northWest;
-            bestDirection = Direction.NW;
-        }
-        return bestDirection;
+//        int maxAmountOfFood = -1;
+//        int value;
+//        Direction bestDirection = null;
+//        for (Direction direction : Direction.values()) {
+//            if ((direction.equals(Direction.N)) || (direction.equals(Direction.E))
+//                    || (direction.equals(Direction.W)) || (direction.equals(Direction.S))) {
+//                value = getOrthogonalDirectionVisibleValue(direction, entityPosition, boardData, boardSize, k);
+//            } else {
+//                value = getDiagonalDirectionVisibleValue(direction, entityPosition, boardData, boardSize);
+//            }
+//            if (value > maxAmountOfFood) {
+//                maxAmountOfFood = value;
+//                bestDirection = direction;
+//            }
+//        }
+//        return bestDirection;
+            int north = getOrthogonalDirectionVisibleValue(Direction.N, entityPosition, boardData, boardSize);
+            int east = getOrthogonalDirectionVisibleValue(Direction.E, entityPosition, boardData, boardSize);
+            int south = getOrthogonalDirectionVisibleValue(Direction.S, entityPosition, boardData, boardSize);
+            int west = getOrthogonalDirectionVisibleValue(Direction.W, entityPosition, boardData, boardSize);
+
+            int northEast = getDiagonalDirectionVisibleValue(Direction.NE, entityPosition, boardData, boardSize);
+            int southEast = getDiagonalDirectionVisibleValue(Direction.SE, entityPosition, boardData, boardSize);
+            int southWest = getDiagonalDirectionVisibleValue(Direction.SW, entityPosition, boardData, boardSize);
+            int northWest = getDiagonalDirectionVisibleValue(Direction.NW, entityPosition, boardData, boardSize);
+            int maxAmountOfFood = -1;
+            Direction bestDirection = null;
+            if (north > maxAmountOfFood) {
+                maxAmountOfFood = north;
+                bestDirection = Direction.N;
+            }
+            if (east > maxAmountOfFood) {
+                maxAmountOfFood = east;
+                bestDirection = Direction.E;
+            }
+            if (south > maxAmountOfFood) {
+                maxAmountOfFood = south;
+                bestDirection = Direction.S;
+            }
+            if (west > maxAmountOfFood) {
+                maxAmountOfFood = west;
+                bestDirection = Direction.W;
+            }
+            if (northEast > maxAmountOfFood) {
+                maxAmountOfFood = northEast;
+                bestDirection = Direction.NE;
+            }
+            if (southEast > maxAmountOfFood) {
+                maxAmountOfFood = southEast;
+                bestDirection = Direction.SE;
+            }
+            if (southWest > maxAmountOfFood) {
+                maxAmountOfFood = southWest;
+                bestDirection = Direction.SW;
+            }
+            if (northWest > maxAmountOfFood) {
+                maxAmountOfFood = northWest;
+                bestDirection = Direction.NW;
+            }
+            return bestDirection;
+
     }
 
     @Override
@@ -458,13 +475,13 @@ class Ant extends Insect implements OrthogonalMoving, DiagonalMoving {
     @Override
     public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
                                                   Map<String, BoardEntity> boardData, int boardSize) {
-        return Travel.getOrthogonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize);
+        return Travel.getOrthogonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize, 1);
     }
 
     @Override
     public int travelOrthogonally(Direction dir, EntityPosition entityPosition, InsectColor color,
                                   Map<String, BoardEntity> boardData, int boardSize) {
-        return Travel.travelOrthogonally(dir, entityPosition, color, boardData, boardSize);
+        return Travel.travelOrthogonally(dir, entityPosition, color, boardData, boardSize, 1);
     }
 
     @Override
@@ -518,29 +535,7 @@ class Grasshopper extends Insect implements OrthogonalMoving {
 
     @Override
     public Direction getBestDirection(Map<String, BoardEntity> boardData, int boardSize) {
-        int north = getOrthogonalDirectionVisibleValue(Direction.N, entityPosition, boardData, boardSize);
-        int east = getOrthogonalDirectionVisibleValue(Direction.E, entityPosition, boardData, boardSize);
-        int south = getOrthogonalDirectionVisibleValue(Direction.S, entityPosition, boardData, boardSize);
-        int west = getOrthogonalDirectionVisibleValue(Direction.W, entityPosition, boardData, boardSize);
-        int maxAmountOfFood = -1;
-        Direction bestDirection = null;
-        if (north > maxAmountOfFood) {
-            maxAmountOfFood = north;
-            bestDirection = Direction.N;
-        }
-        if (east > maxAmountOfFood) {
-            maxAmountOfFood = east;
-            bestDirection = Direction.E;
-        }
-        if (south > maxAmountOfFood) {
-            maxAmountOfFood = south;
-            bestDirection = Direction.S;
-        }
-        if (west > maxAmountOfFood) {
-            maxAmountOfFood = west;
-            bestDirection = Direction.W;
-        }
-        return bestDirection;
+        return Travel.getBestOrthogonalDirection(entityPosition, boardData, boardSize, 2);
     }
 
     @Override
@@ -551,122 +546,13 @@ class Grasshopper extends Insect implements OrthogonalMoving {
     @Override
     public int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
                                                   Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case N:
-                while (x > 2) {
-                    x -= 2;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-
-                    }
-                }
-                break;
-            case S:
-                while (x < boardSize - 1) {
-                    x += 2;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case E:
-                while (y < boardSize - 1) {
-                    y += 2;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            case W:
-                while (y > 2) {
-                    y -= 2;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-        return amountOfFood;
+        return Travel.getOrthogonalDirectionVisibleValue(dir, entityPosition, boardData, boardSize, 2);
     }
 
     @Override
     public int travelOrthogonally(Direction dir, EntityPosition entityPosition, InsectColor color,
                                   Map<String, BoardEntity> boardData, int boardSize) {
-        int amountOfFood = 0;
-        int x = entityPosition.getX();
-        int y = entityPosition.getY();
-        switch (dir) {
-            case N:
-                while (x > 2) {
-                    x -= 2;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case S:
-                while (x < boardSize - 1) {
-                    x += 2;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case E:
-                while (y < boardSize - 1) {
-                    y += 2;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            case W:
-                while (y > 2) {
-                    y -= 2;
-                    BoardEntity entity = boardData.get(x + " " + y);
-                    if (entity instanceof FoodPoint) {
-                        amountOfFood += ((FoodPoint) entity).value;
-                        boardData.remove(x + " " + y);
-                    } else if (entity instanceof Insect) {
-                        if (((Insect) entity).getColor() != color) {
-                            break;
-                        }
-                    }
-                }
-                break;
-            default:
-                break;
-        }
-        boardData.remove(Board.toString(entityPosition));
-        Board.setBoardData(boardData);
-        return amountOfFood;
+        return Travel.travelOrthogonally(dir, entityPosition, color, boardData, boardSize, 2);
     }
 
 }
@@ -799,14 +685,14 @@ class Travel {
     }
 
     public static int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
-                                                         Map<String, BoardEntity> boardData, int boardSize) {
+                                                         Map<String, BoardEntity> boardData, int boardSize, int k) {
         int amountOfFood = 0;
         int x = entityPosition.getX();
         int y = entityPosition.getY();
         switch (dir) {
             case N:
-                while (x > 1) {
-                    x -= 1;
+                while (x > k) {
+                    x -= k;
                     BoardEntity entity = boardData.get(x + " " + y);
                     if (entity instanceof FoodPoint) {
                         amountOfFood += ((FoodPoint) entity).value;
@@ -815,8 +701,8 @@ class Travel {
                 }
                 break;
             case S:
-                while (x < boardSize) {
-                    x += 1;
+                while (x <= boardSize - k) {
+                    x += k;
                     BoardEntity entity = boardData.get(x + " " + y);
                     if (entity instanceof FoodPoint) {
                         amountOfFood += ((FoodPoint) entity).value;
@@ -824,8 +710,8 @@ class Travel {
                 }
                 break;
             case E:
-                while (y < boardSize) {
-                    y += 1;
+                while (y <= boardSize - k) {
+                    y += k;
                     BoardEntity entity = boardData.get(x + " " + y);
                     if (entity instanceof FoodPoint) {
                         amountOfFood += ((FoodPoint) entity).value;
@@ -833,8 +719,8 @@ class Travel {
                 }
                 break;
             case W:
-                while (y > 1) {
-                    y -= 1;
+                while (y > k) {
+                    y -= k;
                     BoardEntity entity = boardData.get(x + " " + y);
                     if (entity instanceof FoodPoint) {
                         amountOfFood += ((FoodPoint) entity).value;
@@ -848,14 +734,14 @@ class Travel {
     }
 
     public static int travelOrthogonally(Direction dir, EntityPosition entityPosition, InsectColor color,
-                                         Map<String, BoardEntity> boardData, int boardSize) {
+                                         Map<String, BoardEntity> boardData, int boardSize, int k) {
         int amountOfFood = 0;
         int x = entityPosition.getX();
         int y = entityPosition.getY();
         switch (dir) {
             case N:
-                while (x > 1) {
-                    x -= 1;
+                while (x > k) {
+                    x -= k;
                     BoardEntity entity = boardData.get(x + " " + y);
                     if (entity instanceof FoodPoint) {
                         amountOfFood += ((FoodPoint) entity).value;
@@ -868,8 +754,8 @@ class Travel {
                 }
                 break;
             case S:
-                while (x < boardSize) {
-                    x += 1;
+                while (x <= boardSize - k) {
+                    x += k;
                     BoardEntity entity = boardData.get(x + " " + y);
                     if (entity instanceof FoodPoint) {
                         amountOfFood += ((FoodPoint) entity).value;
@@ -882,8 +768,8 @@ class Travel {
                 }
                 break;
             case E:
-                while (y < boardSize) {
-                    y += 1;
+                while (y <= boardSize - k) {
+                    y += k;
                     BoardEntity entity = boardData.get(x + " " + y);
                     if (entity instanceof FoodPoint) {
                         amountOfFood += ((FoodPoint) entity).value;
@@ -896,8 +782,8 @@ class Travel {
                 }
                 break;
             case W:
-                while (y > 1) {
-                    y -= 1;
+                while (y > k) {
+                    y -= k;
                     BoardEntity entity = boardData.get(x + " " + y);
                     if (entity instanceof FoodPoint) {
                         amountOfFood += ((FoodPoint) entity).value;
@@ -918,11 +804,28 @@ class Travel {
     }
 
     public static Direction getBestOrthogonalDirection(EntityPosition entityPosition,
-                                                Map<String, BoardEntity> boardData, int boardSize) {
-        int north = getOrthogonalDirectionVisibleValue(Direction.N, entityPosition, boardData, boardSize);
-        int east = getOrthogonalDirectionVisibleValue(Direction.E, entityPosition, boardData, boardSize);
-        int south = getOrthogonalDirectionVisibleValue(Direction.S, entityPosition, boardData, boardSize);
-        int west = getOrthogonalDirectionVisibleValue(Direction.W, entityPosition, boardData, boardSize);
+                                                       Map<String, BoardEntity> boardData, int boardSize, int k) {
+
+//        int maxAmountOfFood = -1;
+//        int value;
+//        Direction bestDirection = null;
+//        for (Direction direction : Direction.values()) {
+//            if ((direction.equals(Direction.N)) || (direction.equals(Direction.E))
+//                    || (direction.equals(Direction.W)) || (direction.equals(Direction.S))) {
+//                value = getOrthogonalDirectionVisibleValue(direction, entityPosition, boardData, boardSize, k);
+//            } else {
+//                value = getDiagonalDirectionVisibleValue(direction, entityPosition, boardData, boardSize);
+//            }
+//            if (value > maxAmountOfFood) {
+//                maxAmountOfFood = value;
+//                bestDirection = direction;
+//            }
+//        }
+//        return bestDirection;
+        int north = getOrthogonalDirectionVisibleValue(Direction.N, entityPosition, boardData, boardSize, k);
+        int east = getOrthogonalDirectionVisibleValue(Direction.E, entityPosition, boardData, boardSize, k);
+        int south = getOrthogonalDirectionVisibleValue(Direction.S, entityPosition, boardData, boardSize, k);
+        int west = getOrthogonalDirectionVisibleValue(Direction.W, entityPosition, boardData, boardSize,  k);
         int maxAmountOfFood = -1;
         Direction bestDirection = null;
         if (north > maxAmountOfFood) {
@@ -943,8 +846,9 @@ class Travel {
         }
         return bestDirection;
     }
+
     public static Direction getBestDiagonalDirection(EntityPosition entityPosition,
-                                      Map<String, BoardEntity> boardData, int boardSize) {
+                                                     Map<String, BoardEntity> boardData, int boardSize) {
         int northEast = getDiagonalDirectionVisibleValue(Direction.NE, entityPosition, boardData, boardSize);
         int southEast = getDiagonalDirectionVisibleValue(Direction.SE, entityPosition, boardData, boardSize);
         int southWest = getDiagonalDirectionVisibleValue(Direction.SW, entityPosition, boardData, boardSize);
@@ -966,6 +870,27 @@ class Travel {
         if (northWest > maxAmountOfFood) {
             maxAmountOfFood = northWest;
             bestDirection = Direction.NW;
+        }
+        return bestDirection;
+    }
+
+    public static Direction getBestDirection(EntityPosition entityPosition,
+                                             Map<String, BoardEntity> boardData, int boardSize, int k) {
+        int maxAmountOfFood = -1;
+        int value  = 0;
+        Direction bestDirection = null;
+        for (Direction direction : Direction.values()) {
+            if ((direction.equals(Direction.N) || direction.equals(Direction.S)
+                    || direction.equals(Direction.W) || direction.equals(Direction.E)) && (k != 0)) {
+                value = getOrthogonalDirectionVisibleValue(direction, entityPosition, boardData, boardSize, k);
+            } else if ((direction.equals(Direction.NE) || direction.equals(Direction.SE)
+                    || direction.equals(Direction.NW) || direction.equals(Direction.SW))) {
+                value = getDiagonalDirectionVisibleValue(direction, entityPosition, boardData, boardSize);
+            }
+            if (value > maxAmountOfFood) {
+                maxAmountOfFood = value;
+                bestDirection = direction;
+            }
         }
         return bestDirection;
     }
