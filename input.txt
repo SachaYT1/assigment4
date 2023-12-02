@@ -1,23 +1,14 @@
-86
-11
-9
-Green Ant 23 27
-Yellow Ant 36 21
-Red Spider 50 1
-Yellow Grasshopper 50 53
-Blue Grasshopper 26 74
-Green Spider 80 10
-Green Butterfly 66 55
-Red Grasshopper 71 43
-Yellow Spider 12 39
-Blue Ant 82 24
-Red Butterfly 83 83
-9 3 20
-9 3 36
-38 78 6
-7 72 15
-8 17 68
-2 78 63
-13 63 83
-14 79 56
-15 22 15
+8
+6
+5
+Red Spider 8 7
+Yellow Ant 7 5
+Yellow Grasshopper 4 8
+Red Ant 2 8
+Red Grasshopper 4 7
+Green Ant 1 8
+3 2 2
+4 8 8
+3 3 5
+49 3 1
+9 7 7
