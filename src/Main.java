@@ -10,15 +10,49 @@ import java.util.Objects;
 import java.util.Scanner;
 
 
+/**
+ * Main class contains functions for reading and outputting data.
+ */
 public class Main {
+    /**
+     * The playing field on which the entities are located.
+     */
     private static Board gameBoard;
+    /**
+     * Constant that specifies the minimum board size.
+     */
     private static final int LOWER_BOUND_OF_BOARD_SIZE = 4;
+    /**
+     * Constant that specifies the maximum board size.
+     */
     private static final int UPPER_BOUND_OF_BOARD_SIZE = 1000;
+    /**
+     * Constant that specifies the minimum number of insects.
+     */
     private static final int LOWER_BOUND_OF_NUMBER_OF_INSECTS = 1;
+    /**
+     * Constant that specifies the maximum number of insects.
+     */
     private static final int UPPER_BOUND_OF_NUMBER_OF_INSECTS = 16;
+    /**
+     * Constant that specifies the minimum number of food points.
+     */
     private static final int LOWER_BOUND_OF_NUMBER_OF_FOOD_POINTS = 1;
+    /**
+     * Constant that specifies the maximum number of food points.
+     */
     private static final int UPPER_BOUND_OF_NUMBER_OF_FOOD_POINTS = 200;
+    /**
+     * List that contains all insects.
+     */
+    private static List<Insect> listOfInsects;
 
+    /**
+     * This function creates two files for reading and outputting data.
+     * The corresponding functions are called. Starts the program.
+     *
+     * @param args standard parameter for main function.
+     */
     public static void main(String[] args) {
         try {
             PrintStream fileOut = new PrintStream(new FileOutputStream("output.txt"));
@@ -26,107 +60,116 @@ public class Main {
             FileInputStream fileIn = new FileInputStream("input.txt");
             System.setIn(fileIn);
             Scanner sc = new Scanner(System.in);
-
-            // board size
-            int boardSize = Integer.parseInt(sc.next());
-            if (boardSize < LOWER_BOUND_OF_BOARD_SIZE || boardSize > UPPER_BOUND_OF_BOARD_SIZE) {
-                InvalidBoardSizeException error = new InvalidBoardSizeException();
-                System.out.println(error.getMessage());
-                System.exit(0);
-            }
-
-            gameBoard = new Board(boardSize);
-
-            // number of insects
-            int numberOfInsects = Integer.parseInt(sc.next());
-
-            if (numberOfInsects < LOWER_BOUND_OF_NUMBER_OF_INSECTS
-                    || numberOfInsects > UPPER_BOUND_OF_NUMBER_OF_INSECTS) {
-                InvalidNumberOfInsectsException error = new InvalidNumberOfInsectsException();
-                System.out.println(error.getMessage());
-                System.exit(0);
-            }
-
-            // number of foods
-            int numberOfFoodPoints = Integer.parseInt(sc.next());
-            if (numberOfFoodPoints < LOWER_BOUND_OF_NUMBER_OF_FOOD_POINTS
-                    || numberOfFoodPoints > UPPER_BOUND_OF_NUMBER_OF_FOOD_POINTS) {
-                InvalidNumberOFoodPointsException error = new InvalidNumberOFoodPointsException();
-                System.out.println(error.getMessage());
-                System.exit(0);
-            }
-
-            List<Insect> listOfInsects = new ArrayList<>();
-
-            for (int i = 0; i < numberOfInsects; i++) {
-                InsectColor color = InsectColor.toColor(sc.next());
-                if (color == null) {
-                    InvalidInsectColorException error = new InvalidInsectColorException();
-                    System.out.println(error.getMessage());
-                    System.exit(0);
-                }
-
-                String insectTypeString = sc.next();
-
-                EntityPosition entityPosition = createEntityPosition(sc);
-
-                Insect insectType = null;
-                switch (insectTypeString) {
-                    case "Grasshopper":
-                        insectType = new Grasshopper(entityPosition, color);
-                        break;
-                    case "Butterfly":
-                        insectType = new Butterfly(entityPosition, color);
-                        break;
-                    case "Ant":
-                        insectType = new Ant(entityPosition, color);
-                        break;
-                    case "Spider":
-                        insectType = new Spider(entityPosition, color);
-                        break;
-                    default:
-                        InvalidInsectTypeException error = new InvalidInsectTypeException();
-                        System.out.println(error.getMessage());
-                        System.exit(0);
-                }
-
-                if (gameBoard.getEntity(entityPosition) != null) {
-                    TwoEntitiesOnSamePositionException error = new TwoEntitiesOnSamePositionException();
-                    System.out.println(error.getMessage());
-                    System.exit(0);
-                }
-                if (listOfInsects.contains(insectType)) {
-                    DuplicateInsectException error = new DuplicateInsectException();
-                    System.out.println(error.getMessage());
-                    System.exit(0);
-                }
-
-                listOfInsects.add(insectType);
-                gameBoard.addEntity(insectType);
-
-            }
-
-            for (int i = 0; i < numberOfFoodPoints; i++) {
-
-                int foodAmount = Integer.parseInt(sc.next());
-
-                EntityPosition entityPosition = createEntityPosition(sc);
-                if (gameBoard.getEntity(entityPosition) != null) {
-                    TwoEntitiesOnSamePositionException error = new TwoEntitiesOnSamePositionException();
-                    System.out.println(error.getMessage());
-                    System.exit(0);
-                }
-                gameBoard.addEntity(new FoodPoint(entityPosition, foodAmount));
-            }
-
-            printData(listOfInsects);
+            listOfInsects = new ArrayList<>();
+            readData(sc);
+            printData();
         } catch (Exception e) {
             System.out.println(e.getMessage());
         }
     }
 
-    private static void printData(List<Insect> insectList) {
-        for (Insect insect : insectList) {
+    /**
+     * In this function the data is read from the file and checked for correctness.
+     * If all data are correct, the entity is added to the board.
+     *
+     * @param sc Scanner which used to read data from input file.
+     */
+    private static void readData(Scanner sc) {
+        int boardSize = Integer.parseInt(sc.next());
+        if (boardSize < LOWER_BOUND_OF_BOARD_SIZE || boardSize > UPPER_BOUND_OF_BOARD_SIZE) {
+            InvalidBoardSizeException error = new InvalidBoardSizeException();
+            System.out.println(error.getMessage());
+            System.exit(0);
+        }
+
+        gameBoard = new Board(boardSize);
+
+        int numberOfInsects = Integer.parseInt(sc.next());
+
+        if (numberOfInsects < LOWER_BOUND_OF_NUMBER_OF_INSECTS
+                || numberOfInsects > UPPER_BOUND_OF_NUMBER_OF_INSECTS) {
+            InvalidNumberOfInsectsException error = new InvalidNumberOfInsectsException();
+            System.out.println(error.getMessage());
+            System.exit(0);
+        }
+
+        int numberOfFoodPoints = Integer.parseInt(sc.next());
+        if (numberOfFoodPoints < LOWER_BOUND_OF_NUMBER_OF_FOOD_POINTS
+                || numberOfFoodPoints > UPPER_BOUND_OF_NUMBER_OF_FOOD_POINTS) {
+            InvalidNumberOFoodPointsException error = new InvalidNumberOFoodPointsException();
+            System.out.println(error.getMessage());
+            System.exit(0);
+        }
+
+
+        for (int i = 0; i < numberOfInsects; i++) {
+            InsectColor color = InsectColor.toColor(sc.next());
+            if (color == null) {
+                InvalidInsectColorException error = new InvalidInsectColorException();
+                System.out.println(error.getMessage());
+                System.exit(0);
+            }
+
+            String insectTypeString = sc.next();
+
+            EntityPosition entityPosition = createEntityPosition(sc);
+
+            Insect insectType = null;
+            switch (insectTypeString) {
+                case "Grasshopper":
+                    insectType = new Grasshopper(entityPosition, color);
+                    break;
+                case "Butterfly":
+                    insectType = new Butterfly(entityPosition, color);
+                    break;
+                case "Ant":
+                    insectType = new Ant(entityPosition, color);
+                    break;
+                case "Spider":
+                    insectType = new Spider(entityPosition, color);
+                    break;
+                default:
+                    InvalidInsectTypeException error = new InvalidInsectTypeException();
+                    System.out.println(error.getMessage());
+                    System.exit(0);
+            }
+
+            if (gameBoard.getEntity(entityPosition) != null) {
+                TwoEntitiesOnSamePositionException error = new TwoEntitiesOnSamePositionException();
+                System.out.println(error.getMessage());
+                System.exit(0);
+            }
+            if (listOfInsects.contains(insectType)) {
+                DuplicateInsectException error = new DuplicateInsectException();
+                System.out.println(error.getMessage());
+                System.exit(0);
+            }
+
+            listOfInsects.add(insectType);
+            gameBoard.addEntity(insectType);
+
+        }
+
+        for (int i = 0; i < numberOfFoodPoints; i++) {
+
+            int foodAmount = Integer.parseInt(sc.next());
+
+            EntityPosition entityPosition = createEntityPosition(sc);
+            if (gameBoard.getEntity(entityPosition) != null) {
+                TwoEntitiesOnSamePositionException error = new TwoEntitiesOnSamePositionException();
+                System.out.println(error.getMessage());
+                System.exit(0);
+            }
+            gameBoard.addEntity(new FoodPoint(entityPosition, foodAmount));
+        }
+    }
+
+    /**
+     * This function goes through the list, where all insects are stored,
+     * and outputs data depending on the type of insect.
+     */
+    private static void printData() {
+        for (Insect insect : listOfInsects) {
             if (insect instanceof Spider) {
                 Spider spider = (Spider) insect;
                 System.out.print(spider.color.toString() + " ");
@@ -170,6 +213,12 @@ public class Main {
         }
     }
 
+    /**
+     * This function reads the coordinates and checks that they are within the boundaries of the game board.
+     *
+     * @param sc Scanner which used to read data from input file.
+     * @return EntityPosition class object.
+     */
     private static EntityPosition createEntityPosition(Scanner sc) {
         int x = Integer.parseInt(sc.next());
         if (x < 1 || x > gameBoard.getSize()) {
@@ -188,10 +237,26 @@ public class Main {
     }
 }
 
+/**
+ * This class contains data about the game board.
+ */
 class Board {
+    /**
+     * Object of the Map type.
+     * The key is a string that is made by adding the x and y coordinates separated by a space.
+     * The value is an object on the board.
+     */
     private static Map<String, BoardEntity> boardData = new HashMap<>();
+    /**
+     * Board size.
+     */
     private final int size;
 
+    /**
+     * Function that return board size.
+     *
+     * @return board size.
+     */
     public int getSize() {
         return size;
     }
@@ -204,14 +269,30 @@ class Board {
         Board.boardData = boardData;
     }
 
+    /**
+     * Constructor of an object of the Board class.
+     *
+     * @param boardSize board size.
+     */
     public Board(int boardSize) {
         this.size = boardSize;
     }
 
+    /**
+     * Function that adds an entity to {@link Board#boardData} by coordinates.
+     *
+     * @param entity board entity.
+     */
     public void addEntity(BoardEntity entity) {
         boardData.put(toString(entity.entityPosition), entity);
     }
 
+    /**
+     * Function that which translates the coordinates from {@link EntityPosition} to a string.
+     *
+     * @param entityPosition coordinates of entity.
+     * @return string that contains coordinates separated by space.
+     */
     public static String toString(EntityPosition entityPosition) {
         return entityPosition.getX() + " " + entityPosition.getY();
     }
@@ -222,14 +303,35 @@ class Board {
 
 }
 
+/**
+ * Class that represents any entity on the board.
+ */
 abstract class BoardEntity {
+    /**
+     * Entity position.
+     */
     protected EntityPosition entityPosition;
 }
 
+/**
+ * Class that is responsible for arranging the entity on the board.
+ */
 class EntityPosition {
+    /**
+     * x coordinate of entity
+     */
     private final int x;
+    /**
+     * y coordinate of entity
+     */
     private final int y;
 
+    /**
+     * Contractor of object of Entity position.
+     *
+     * @param x x coordinate of entity.
+     * @param y u coordinate of entity.
+     */
     public EntityPosition(int x, int y) {
         this.x = x;
         this.y = y;
@@ -261,6 +363,9 @@ class EntityPosition {
     }
 }
 
+/**
+ * Class that contains all directions of insect movement.
+ */
 enum Direction {
     N("North"),
     E("East"),
@@ -271,6 +376,9 @@ enum Direction {
     SW("South-West"),
     NW("North-West");
 
+    /**
+     * String representation of Direction class field.
+     */
     private final String textRepresentation;
 
     Direction(String text) {
@@ -284,6 +392,9 @@ enum Direction {
 
 }
 
+/**
+ * Class that contains all colors of insect.
+ */
 enum InsectColor {
     RED,
     GREEN,
@@ -319,8 +430,21 @@ enum InsectColor {
     }
 }
 
+/**
+ * Class that represents food point.
+ */
 class FoodPoint extends BoardEntity {
+    /**
+     * Value of food point
+     */
     protected int value;
+
+    /**
+     * Constructor of food point.
+     *
+     * @param position position of food point.
+     * @param value    value of food point.
+     */
 
     public FoodPoint(EntityPosition position, int value) {
         this.value = value;
@@ -328,14 +452,33 @@ class FoodPoint extends BoardEntity {
     }
 }
 
+/**
+ * Class that represents insect.
+ */
 abstract class Insect extends BoardEntity {
+    /**
+     * Insect color.
+     */
     protected InsectColor color;
 
+    /**
+     * Constructor of insect.
+     *
+     * @param position position of insect.
+     * @param color    insect color.
+     */
     public Insect(EntityPosition position, InsectColor color) {
         this.color = color;
         this.entityPosition = position;
     }
 
+    /**
+     * Сounts the amount of food for all possible directions and returns the one with the maximum amount of food.
+     *
+     * @param boardData {@link Board#getBoardData()}
+     * @param boardSize {@link Board#getSize()}
+     * @return best direction.
+     */
     public Direction getBestDirection(Map<String, BoardEntity> boardData, int boardSize) {
         return null;
     }
@@ -344,6 +487,14 @@ abstract class Insect extends BoardEntity {
         return color;
     }
 
+    /**
+     * A function that counts the amount of food a certain animal can collect on the path without getting killed.
+     *
+     * @param dir       {@link Direction}
+     * @param boardData {@link Board#getBoardData()}
+     * @param boardSize {@link Board#getSize()}
+     * @return amount of food.
+     */
     public int travelDirection(Direction dir, Map<String, BoardEntity> boardData, int boardSize) {
         return 0;
     }
@@ -366,6 +517,9 @@ abstract class Insect extends BoardEntity {
     }
 }
 
+/**
+ * Class that represents butterfly.
+ */
 class Butterfly extends Insect implements OrthogonalMoving {
 
     public Butterfly(EntityPosition position, InsectColor color) {
@@ -395,6 +549,9 @@ class Butterfly extends Insect implements OrthogonalMoving {
     }
 }
 
+/**
+ * Class that represents ant
+ */
 class Ant extends Insect implements OrthogonalMoving, DiagonalMoving {
 
     public Ant(EntityPosition position, InsectColor color) {
@@ -449,6 +606,9 @@ class Ant extends Insect implements OrthogonalMoving, DiagonalMoving {
 
 }
 
+/**
+ * CLass that represents spider.
+ */
 class Spider extends Insect implements DiagonalMoving {
     public Spider(EntityPosition position, InsectColor color) {
         super(position, color);
@@ -478,6 +638,9 @@ class Spider extends Insect implements DiagonalMoving {
     }
 }
 
+/**
+ * Class that represents grasshopper.
+ */
 class Grasshopper extends Insect implements OrthogonalMoving {
     public Grasshopper(EntityPosition position, InsectColor color) {
         super(position, color);
@@ -507,6 +670,9 @@ class Grasshopper extends Insect implements OrthogonalMoving {
 
 }
 
+/**
+ * Class that contains all the functions for moving and getting the best path for an insect.
+ */
 class Travel {
     public static int travelDiagonally(Direction dir, EntityPosition entityPosition,
                                        InsectColor color, Map<String, BoardEntity> boardData, int boardSize) {
@@ -809,19 +975,60 @@ class Travel {
     }
 }
 
-
+/**
+ * Interface that contains functions for moving orthogonally.
+ */
 interface OrthogonalMoving {
+    /**
+     * A function that counts the amount of food that can be collected in one of the orthogonal directions.
+     *
+     * @param dir            {@link Direction} orthogonal direction.
+     * @param entityPosition {@link EntityPosition} the position on which the insect is standing.
+     * @param boardData      {@link Board#getBoardData()}
+     * @param boardSize      {@link Board#getSize()}
+     * @return amount of food.
+     */
     int getOrthogonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
                                            Map<String, BoardEntity> boardData, int boardSize);
 
+    /**
+     * A function that counts the amount of food a certain insect can collect on the
+     * orthogonal direction without getting killed.
+     *
+     * @param dir       {@link Direction} orthogonal direction.
+     * @param boardData {@link Board#getBoardData()}
+     * @param boardSize {@link Board#getSize()}
+     * @return amount of food.
+     */
     int travelOrthogonally(Direction dir, EntityPosition entityPosition, InsectColor color,
                            Map<String, BoardEntity> boardData, int boardSize);
 }
 
+/**
+ * Interface that contains functions for moving diagonally.
+ */
 interface DiagonalMoving {
+    /**
+     * A function that counts the amount of food that can be collected in one of the diagonal directions.
+     *
+     * @param dir            {@link Direction} diagonal direction.
+     * @param entityPosition {@link EntityPosition} the position on which the insect is standing.
+     * @param boardData      {@link Board#getBoardData()}
+     * @param boardSize      {@link Board#getSize()}
+     * @return amount of food.
+     */
     int getDiagonalDirectionVisibleValue(Direction dir, EntityPosition entityPosition,
                                          Map<String, BoardEntity> boardData, int boardSize);
 
+    /**
+     * A function that counts the amount of food a certain insect can collect on the
+     * diagonal direction without getting killed.
+     *
+     * @param dir       {@link Direction} diagonal direction.
+     * @param boardData {@link Board#getBoardData()}
+     * @param boardSize {@link Board#getSize()}
+     * @return amount of food.
+     */
     int travelDiagonally(Direction dir, EntityPosition entityPosition, InsectColor color,
                          Map<String, BoardEntity> boardData, int boardSize);
 }
